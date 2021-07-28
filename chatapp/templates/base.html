@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% load static %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  
+  {% block title %}
+    <title>Chat Project Base</title>
+  {% endblock %}
+
+  <!-- Bootstrap core CSS -->
+  <link href="{% static 'chatapp/vendor/css/bootstrap.min.css' %}" rel="stylesheet">
+
+  <script src="{% static 'chatapp/vendor/js/bootstrap.bundle.min.js' %}"></script>
+
+  <!-- Custom styles for this template -->
+  <link href="{% static 'chatapp/css/base.css' %}" rel="stylesheet">
+  
+  {% block css %}
+    
+  {% endblock css %}
+
+</head>
+
+<body style="">
+  <div class="p-0" style="overflow-x: hidden; overflow-y: hidden;">
+    
+    <nav class="d-flex flex-row nav-bar bg-light py-3 w-100 border-bottom position-fixed" style="z-index: 9000;">
+      <div class="col-12 col-md-5">
+        <div class="d-flex align-items-end flex-column" >
+          {% block nav-col-sm %}
+            
+  
+          {% endblock nav-col-sm %}
+        </div>
+      </div>
+      <div class="col-md-7 d-none d-sm-none d-md-block border-left">
+        <div class="">
+          {% block nav-col-lg %}
+            
+
+          {% endblock nav-col-lg %}
+        </div>
+      </div>  
+    </nav>
+    <div class="bg-light mt-5 pt-5" style="height: 92vh;">
+      <div class="row" style="height: 100%;">
+        <div class="col-12 col-md-5 p-0 " style="height: 100%;">
+          {% block body-col-sm %}
+            
+
+          {% endblock body-col-sm  %}
+        </div>
+        <div class="col-md-7 d-none d-sm-none d-md-block border-left" style="height: 100%;overflow-y: hidden;">
+            {% block body-col-lg %}
+              
+
+            {% endblock body-col-lg %}
+        </div>  
+      </div>
+    </div>
+      
+
+  {% block modals&links %}
+    
+    
+
+  {% endblock modals&links %}
+
+
+
+  </div>
+
+  <script src="{% static 'chatapp/vendor/js/jquery.min.js' %}"></script>
+  <script src="{% static 'chatapp/vendor/js/bootstrap.bundle.js' %}"></script> 
+  <script src="{% static 'chatapp/vendor/js/bootstrap.bundle.min.js' %}"></script>
+
+  {% block javascript %}
+    
+  {% endblock javascript %}
+
+</body>
+
+</html>

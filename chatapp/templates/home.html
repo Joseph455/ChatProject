@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block meta-descrip %}
+
+
+
+{% endblock meta-descrip %}
+
+{% block title %} <title> Home </title> {% endblock title %}
+
+
+{% block css %}
+<link href="{% static 'chatapp/css/home.css' %}" rel="stylesheet" />
+
+{% endblock css %}
+
+
+{% block nav-col-sm %}
+<div id="nav-container-sm" class="d-flex justify-content-between my-auto w-100 px-md-2">
+  <img class="profile-pic img-preview" src="{{ user.profile.profile_picture.url }}" alt="..." />
+  <div class="d-none d-sm-none d-md-block">
+    <input class="form-control badge-pill" name="search" type="text" maxlength="150" placeholder="Search..." />
+  </div>
+  <div class="d-flex flex-colum">
+    <div class="mx-2 d-none d-block d-md-none">
+      <svg width="1.5em" height="2em" viewBox="0 0 16 16" class="bi bi-search" fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd"
+          d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z" />
+        <path fill-rule="evenodd"
+          d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z" />
+      </svg>
+    </div>
+    <div class="dropdown">
+      <svg id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" width="1.5em"
+        height="2em" viewBox="0 0 16 16" class="bi bi-three-dots-vertical dropdown-toggle" fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd"
+          d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+      </svg>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <span id="profile_nav" class="dropdown-item">
+          <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-person-circle" fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M13.468 12.37C12.758 11.226 11.195 10 8 10s-4.757 1.225-5.468 2.37A6.987 6.987 0 0 0 8 15a6.987 6.987 0 0 0 5.468-2.63z" />
+            <path fill-rule="evenodd" d="M8 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
+            <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z" />
+          </svg>
+          Profile
+        </span>
+        <span id="settings_nav" class="dropdown-item">
+          <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-gear" fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd"
+              d="M8.837 1.626c-.246-.835-1.428-.835-1.674 0l-.094.319A1.873 1.873 0 0 1 4.377 3.06l-.292-.16c-.764-.415-1.6.42-1.184 1.185l.159.292a1.873 1.873 0 0 1-1.115 2.692l-.319.094c-.835.246-.835 1.428 0 1.674l.319.094a1.873 1.873 0 0 1 1.115 2.693l-.16.291c-.415.764.42 1.6 1.185 1.184l.292-.159a1.873 1.873 0 0 1 2.692 1.116l.094.318c.246.835 1.428.835 1.674 0l.094-.319a1.873 1.873 0 0 1 2.693-1.115l.291.16c.764.415 1.6-.42 1.184-1.185l-.159-.291a1.873 1.873 0 0 1 1.116-2.693l.318-.094c.835-.246.835-1.428 0-1.674l-.319-.094a1.873 1.873 0 0 1-1.115-2.692l.16-.292c.415-.764-.42-1.6-1.185-1.184l-.291.159A1.873 1.873 0 0 1 8.93 1.945l-.094-.319zm-2.633-.283c.527-1.79 3.065-1.79 3.592 0l.094.319a.873.873 0 0 0 1.255.52l.292-.16c1.64-.892 3.434.901 2.54 2.541l-.159.292a.873.873 0 0 0 .52 1.255l.319.094c1.79.527 1.79 3.065 0 3.592l-.319.094a.873.873 0 0 0-.52 1.255l.16.292c.893 1.64-.902 3.434-2.541 2.54l-.292-.159a.873.873 0 0 0-1.255.52l-.094.319c-.527 1.79-3.065 1.79-3.592 0l-.094-.319a.873.873 0 0 0-1.255-.52l-.292.16c-1.64.893-3.433-.902-2.54-2.541l.159-.292a.873.873 0 0 0-.52-1.255l-.319-.094c-1.79-.527-1.79-3.065 0-3.592l.319-.094a.873.873 0 0 0 .52-1.255l-.16-.292c-.892-1.64.902-3.433 2.541-2.54l.292.159a.873.873 0 0 0 1.255-.52l.094-.319z" />
+            <path fill-rule="evenodd"
+              d="M8 5.754a2.246 2.246 0 1 0 0 4.492 2.246 2.246 0 0 0 0-4.492zM4.754 8a3.246 3.246 0 1 1 6.492 0 3.246 3.246 0 0 1-6.492 0z" />
+          </svg>
+          Setting
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class=" d-flex flex-row mt-auto justify-content-between border badge-pill w-100 mx-auto px-0 px-md-3 "
+  style="height: 2.2rem;">
+  <span id="chat-nav" class="nav-select active my-auto text-center border w-25">Chats</span>
+  <span id="group-nav" class="nav-select center my-auto text-center border w-50 ">Groups</span>
+  <span id="contact-nav" class="nav-select my-auto text-center border w-25">Contacts</span>
+</div>
+{% endblock %}
+
+{% block nav-col-lg %}
+<div id="nav-container-lg">
+
+</div>
+{% endblock %}
+
+{% block body-col-sm %}
+<div id="body-container-sm" class="mb-5 pb-5 pt-2 px-4 w-100"
+  style="height:100%; max-height: 100%; overflow-y: scroll; overflow-x: hidden;">
+
+
+
+</div>
+{% endblock %}
+
+{% block body-col-lg %}
+<div id="body-container-lg" style="height:100%; max-height: 100%; overflow-y: hidden; overflow-x: hidden;">
+
+
+</div>
+{% endblock %}
+
+
+
+{% block modals&links %}
+
+<!-- Modals  -->
+<div id="profile-pic-full-view-modal" class="modal" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog  modal-dialog-centered" role="img">
+    <div id="profile-pic-container" class="modal-content bg-light bg-transparent">
+      <div id="profile-pic">
+      </div>
+      <div class="d-flex justify-content-end">
+        <div class="close border" data-dismiss="modal" aria-label="Close">
+          &times;
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="conv-modal">
+
+</div>
+
+<!-- Modal containing chat images as carosel -->
+<div id="chatImageModal">
+
+</div>
+
+<!-- links -->
+<input id="id_logged-user-id" value="{{ user.id }}" hidden />
+
+
+<!-- svgs links -->
+<input id="check.svg" value="{% static  'chatpp/svg/check.svg' %}" hidden />
+<input id="check-all.svg" value="{% static  'chatpp/svg/check-all.svg' %}" hidden />
+<input id="code.svg" value="{% static  'chatpp/svg/code.svg' %}" hidden />
+<input id="file-icon.svg" value="{% static 'chatapp/svg/file-icon.svg' %}" hidden/>
+
+
+{% endblock modals&links %}
+
+
+{% block javascript %}
+<!-- <script type="module">
+  let Active;
+</script> -->
+<script src="{% static 'chatapp/js/mod.js' %}" type="module"></script>
+<script src="{% static 'chatapp/js/home.js' %}" type="module"></script>
+<script src="{% static 'chatapp/js/views/view.js' %}" type="module" ></script>
+<script src="{% static 'chatapp/js/views/main.js' %}" type="module" ></script>
+<script src="{% static 'chatapp/js/views/chatListView.js' %}" type="module" ></script>
+<script src="{% static 'chatapp/js/views/GroupList.js' %}" type="module" ></script>
+<script src="{% static 'chatapp/js/views/ChatDetail.js' %}" type="module" ></script>
+
+
+{% endblock javascript %}

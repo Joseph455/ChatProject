@@ -1,0 +1,35 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    div.half {
+      width: 45%;
+      margin-right: 4px;
+    }
+  </style>
+</head>
+<body style="width: fit-content;">
+  {% if user.is_authenticated %}
+    <a href="{% url 'userapp:logout' %}"><button>Logut</button></a>
+  {% else %}
+  <span>
+    <div class="half">
+      <form method="POST" action="{% url 'userapp:login' %}">
+        {% csrf_token %}
+        {{ login_form.as_p }}
+        <input type="submit" value="Login" />
+      </form>
+    </div>
+    <div class="half">
+      <form method="POST" action="{% url 'userapp:register' %}">
+        {% csrf_token %}
+        {{ register_form.as_p }}
+        <input type="submit" value="Register" />
+      </form>
+    </div>
+  </span>
+  {% endif %}
+</body>
+</html>
