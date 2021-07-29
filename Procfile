@@ -1,1 +1,1 @@
-web: gunicorn QR.wsgi --log-file -
+web: gunicorn ChatProject.asgi --log-file -
