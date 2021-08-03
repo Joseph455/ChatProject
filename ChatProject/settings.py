@@ -99,7 +99,7 @@ CHANNEL_LAYERS = {
 
 
 CACHES = {
-    "defualt" : {
+    "default" : {
         "BACKEND": 'django_redis.caches.RedisCache',
         "LOCATION": [('127.0.0.1', 6379), env("REDIS_URL")],
         "OPTIONS":{
