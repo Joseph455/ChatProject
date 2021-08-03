@@ -17,7 +17,8 @@ import chatApi.routing
 
 django.setup()
 
-settings.configure()
+if not settings.configured:
+    settings.configure()
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ChatProject.settings')
 
