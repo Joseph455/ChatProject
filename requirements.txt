@@ -33,4 +33,4 @@ sqlparse==0.3.1
 Twisted==20.3.0
 urllib3==1.25.8
 virtualenv==20.0.29
-
+whitenoise==5.3.0
