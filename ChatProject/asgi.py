@@ -9,13 +9,15 @@ https://docs.djangoproject.com/en/3.0/howto/deployment/asgi/
 
 import os
 import django
+
+django.setup()
+
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
 from django.conf import settings
 import chatApi.routing
 
-django.setup()
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ChatProject.settings')
 
