@@ -1,0 +1,124 @@
+#profile-pic {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border-width: 0px;
+  position: inherit;
+  top: inherit;
+  left: inherit;
+  transform: inherit;
+  background-color: rgba(24, 23, 21, 0.623);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+#profile-pic-container {
+  border-width: 2px;
+  width: 160px;
+  height: 160px;
+  top: 50%;
+  left: 50%;
+  position: fixed;
+  transform: translate(-50%, -50%);
+}
+
+@media(min-width: 300px) {
+  #profile-pic {
+    width: 140px;
+    height: 140px;
+  }
+
+  #profile-pic-container {
+    width: 180px;
+    height: 180px;
+  }
+}
+
+@media(min-width: 500px) {
+  #profile-pic {
+    width: 200px;
+    height: 200px;
+  }
+
+  #profile-pic-container {
+    width: 240px;
+    height: 240px;
+  }
+}
+
+@media(min-width: 768px) {
+  #profile-pic {
+    top: 7%;
+    left: 7%;
+    position: absolute;
+    /* transform: translate(-50%, -50%); */
+  }    
+
+  #profile-pic-container {
+    left: 5vw;
+    top: initial;
+    transform: none;
+  }
+}
+
+@media(min-width: 900px) {
+  #profile-pic-container {
+    left: 10vw;
+  }
+}
+
+div.close {
+  font-size: 2.5rem;
+  font-weight: 500;
+  color: white;
+  border: unset !important;
+}
+
+img.profile-pic {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+}
+
+.nav-select {
+  border-width: 0px !important;
+  font-size: medium;
+  color: #6c757d;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 350px) {
+  .nav-select {
+    border-width: 0px !important;
+    font-size: small;
+    color: #6c757d;
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
+
+.nav-select:active {
+  background-color: whitesmoke;
+  color: #007bff;
+}
+
+.nav-select.active {
+  background-color: #f8f9fa;
+  color: #007bff;
+  /* border-right-color: #007bff !important;
+    border-right-width: 0.2rem !important; */
+}
+
+.nav-select.center {
+  border-right-color: #007bff !important;
+  border-right-width: 0.2rem !important;
+  border-left-color: #007bff !important;
+  border-left-width: 0.2rem !important;
+}
+
+
+.modal-group:active {
+  background-color: black;
+}
