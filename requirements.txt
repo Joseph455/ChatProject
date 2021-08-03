@@ -23,6 +23,7 @@ httplib2==0.18.1
 jedi==0.17.2
 Jinja2==2.10.1
 Pillow==7.0.0
+psycopg2==2.9.1
 roman==2.0.0
 rsa==4.6
 simplejson==3.16.0
