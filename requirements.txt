@@ -8,6 +8,7 @@ channels-redis==3.2.0
 cryptography==3.3.1
 daphne==3.0.1
 decorator==4.4.2
+dj_database_url==0.5.0
 Django==3.0.9
 django-appconf==1.0.4
 django-crispy-forms==1.10.0
