@@ -16,7 +16,7 @@ import chatApi.routing
 
 django.setup()
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'websocket.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ChatProject.settings')
 
 
 application = ProtocolTypeRouter({
