@@ -166,7 +166,6 @@ class Chat(models.Model):
                     if container.timestamp < self.date_created:
                         container.reset_timestamp(self)
 
-
     def save(self, *args, **kwargs):
         self.replying_same_container()
         if self.conversation and self.channel:
@@ -257,7 +256,7 @@ class Membership(models.Model):
                     "pk": self.group.id,
                     "member_id": self.id,
                 }) 
-        return url
+        return url.replace('/', '', 1)
     
 
 class ConBase(models.Model):
@@ -299,6 +298,8 @@ class Channel(ConBase):
 
     def get_absolute_url(self):
         initial_url =  reverse("channel-detail", kwargs={"pk": self.group.id, 'channel_id': self.id})
+        print(initial_url)
+        print(initial_url.replace('/', '', 1))
         return initial_url.replace('/', '', 1)
 
     def save(self, *args, **kwargs):

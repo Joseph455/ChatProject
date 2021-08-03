@@ -701,8 +701,10 @@ async function init(conversation) {
       spinner.remove();
       renderToDOM(chat, container, conversation);
       notifyChatAsRead(chat);
+      // scroll to the bottom of the page 
       container.scrollTop = container.scrollHeight;
     }
+    
 
     if (GlobalViewMode == "desktop"){
       // remove unread chats indicator from conversation DOM OBJ
@@ -774,10 +776,12 @@ async function main(data) {
                   chat =  await createChat(chatData, data.conversation);
                   data.queryset.add(chat);
                 }
+               
                 container.scroll = null;
                 renderToDOM(chat, container, data.conversation, "top");
                 notifyChatAsRead(chat);
                 spinner.remove();
+              
               }
               
               data.queryset.sort("date_created", false);
@@ -799,37 +803,6 @@ async function main(data) {
       }
     } 
   });
-
-
-  // async function event(data) {
-
-  //   try {
-  //     let updates = await getUpdates(data.conversation);
-
-  //     if (updates.results.length > 0) {
-  //       pushUpdateToQuerySet(updates.results,data.conversation);
-
-  //       while (updates.next) {
-  //         try {
-  //           updates = await getUpdates(data.conversation);
-  //           if (updates.results) {
-  //             pushUpdateToQuerySet(updates.results,data.conversation);
-  //           }
-  //         } catch (error) {
-  //           throw error;
-  //         }
-  //       }
-
-  //       data.queryset.sort("date_created", true);
-  //       return data;
-  //     }
-
-
-  //   } catch (error) { throw error; }
-
-  // }
-
-  // // promiseEventLoop(event, [data], ()=>{}, console.log, 500, `StopConversation${data.conversation.id}`);
 
 }
 

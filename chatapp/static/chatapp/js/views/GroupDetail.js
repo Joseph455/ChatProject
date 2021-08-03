@@ -65,15 +65,29 @@ async function getMembership(container) {
 
 export async function createChat(chatDetail, channel) {
 
+  // console.log(chatDetail);
   let chat = new Chat(chatDetail);
   chat.channel = channel;
 
-  if (chat.creator && (typeof chat.creator == Object)) {
+  if (chat.creator && (typeof chat.creator == "object")) {
     if (chat.creator.url) {
       chat.creator.url = channel.url.replace("?format=json", `/chats/${chat.id}/?format=json`);
     }
-  }
+  } else if (chat.creator) {
+    // get the chats creator
+    let creator = channel.members.get({'url': chat.creator}); 
+    if (creator)
+    {
+      chat.creator = creator; 
+    } else {
+      if (chat.creator == LoggedUser.url)
+      {
+        chat.creator = LoggedUser;
+      }
+    }
   
+  }
+
   if (chat.notifiyer) {
     let singleEffectActions = [
       'Delete:Chat', "Create:Group", "Create:Channel",
@@ -140,7 +154,7 @@ export async function createChat(chatDetail, channel) {
     // get chat creator details from server
     if (chat.creator == LoggedUser.url) {
       chat.creator = LoggedUser;
-    } else { 
+    } else {
       if (chat.creator) {
         let member = (
           channel.PageState.group.members.get({"id": chat.creator.id}) ||
@@ -150,8 +164,9 @@ export async function createChat(chatDetail, channel) {
         if (member) {
           chat.creator = member;
         } else {
-          let userDetail = await AjaxGetRequest(`${chat.creator.url}`);
-          let profileDetail = await AjaxGetRequest(`${chat.creator.url.replace("?format=json", "profile/?format=json")}`);
+          let url = (typeof chat.creator == "string")? chat.creator: chat.creator.url;
+          let userDetail = await AjaxGetRequest(url);
+          let profileDetail = await AjaxGetRequest(`${url.replace("?format=json", "profile/?format=json")}`);
           chat.creator = new User(userDetail, profileDetail);
           channel.PageState.group.members.add(chat.creator);
           channel.members.add(chat.creator);
@@ -159,10 +174,8 @@ export async function createChat(chatDetail, channel) {
       }
     
     }
-
     
   }
-
 
   chat.DOM = GroupChatRender.createChatDOM(chat);
   return chat;
@@ -171,7 +184,7 @@ export async function createChat(chatDetail, channel) {
 async function loadActiveChannel(channel){
   
   try {
-    if (!channel.members) channel.members = new QuerySet(User);
+    if (!channel.members) {channel.members = new QuerySet(User);}
     
     let chatDetails = await getChats(channel, null, null);
     let container = getDOMContainer("detail");
@@ -179,16 +192,12 @@ async function loadActiveChannel(channel){
     for (let i = chatDetails.results.length-1; i >= 0 ; i--) {
       let chatData = chatDetails.results[i];
       let chat = await createChat(chatData, channel);
-      console.log(channel, channel.PageState);
       channel.PageState.queryset.add(chat);
       container.append(chat.DOM);
+      // scroll to bottom of page
+      container.scrollTop = container.scrollHeight;
     }
 
-    // while (chatDetails.next) {
-    //   channel.PageState.cusor.next = chatDetails.next;
-    //   channel.PageState.cusor.previous = chatDetails.previous; 
-    //   loadActiveChannel(channel);
-    // }
 
   } catch (error) {
     throw error;

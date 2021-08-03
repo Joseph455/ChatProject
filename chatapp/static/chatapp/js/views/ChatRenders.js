@@ -43,7 +43,6 @@ export function getPlayableFileData(fileURL) {
 
 export function renderReply(chat) {
   let str = "";
-  console.log(chat);
   if (chat.replying) {
     console.log(chat, "chat has a reply");
     if (chat.replying.message){

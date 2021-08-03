@@ -46,11 +46,13 @@ urlpatterns = [
     path('groups/<int:pk>/channels/<int:channel_id>/members/leave/', leave_channel, name='channel-member-leave'),
 
     path('users/', UserList.as_view(), name='user-list'),
-    path('users/<pk>/', UserDetail.as_view(), name='user-detail'),
-    path('users/<pk>/profile/', UserProfileDetail.as_view(), name='profile-detail'),
-    path('users/<pk>/profile/contacts/', ContactList.as_view(), name="contact-list"),
-    path('users/<pk>/profile/contacts/<int:contact_id>/', ContactDetail.as_view(), name="contact-detail"),
+    path('users/<int:pk>/', UserDetail.as_view(), name='user-detail'),
+    path('users/<int:pk>/profile/', UserProfileDetail.as_view(), name='profile-detail'),
+    path('users/<int:pk>/profile/contacts/', ContactList.as_view(), name="contact-list"),
+    path('users/<int:pk>/profile/contacts/<int:contact_id>/', ContactDetail.as_view(), name="contact-detail"),
 
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
+
+

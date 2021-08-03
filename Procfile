@@ -1,1 +1,1 @@
-web: gunicorn ChatProject.asgi --log-file -
+web: gunicorn ChatProject.asgi --preload --log-file -

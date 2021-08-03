@@ -392,8 +392,8 @@ class GroupInviteSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
-    profile = serializers.HyperlinkedRelatedField(view_name='profile-detail', read_only=True)
-
+    profile = serializers.HyperlinkedIdentityField(view_name='profile-detail', read_only=True)
+    
     class Meta:
         model = User
         
@@ -407,12 +407,14 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         }
 
     def create(self, validated_data):
+        
         user = User(
             username=validated_data.get('username'),
             email=validated_data.get('email'),
             first_name=validated_data.get('first_name'),
             last_name=validated_data.get('last_name'),
         )
+
         user.set_password(validated_data.get('password'))
         user.save()
         return user
@@ -449,7 +451,8 @@ class ChannelMembershipSerializer(serializers.ModelSerializer):
 
         
 class ProfileSerializer(serializers.HyperlinkedModelSerializer):
-    
+    user = serializers.HyperlinkedIdentityField(view_name='user-detail', read_only=True)
+
     class Meta:
         model = Profile
         

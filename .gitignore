@@ -1,1 +1,3 @@
 ChatProject/.env
+media/chatapp
+db.sqlite3

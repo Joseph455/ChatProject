@@ -613,3 +613,4 @@ class UserGroupsConsumer(AsyncWebsocketConsumer):
 
             await self.receive_chat(event)
 
+

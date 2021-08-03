@@ -8,6 +8,7 @@ from django.contrib.auth import login, logout, authenticate
 from django_filters import rest_framework as df_filters
 from django.contrib.sites.models import Site
 from django.utils import timezone
+from django.db.models.signals import post_save
 
 
 from rest_framework.views import APIView
@@ -24,10 +25,10 @@ from rest_framework import status
 from rest_framework import filters
 from rest_framework.parsers import FormParser
 
+
 from chatApi.permissions import *
 from chatApi.serializers import *
 from chatapp.models import *
-
 
 # Create your views here.
 
@@ -372,7 +373,6 @@ class ImageList(generics.ListCreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else :
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class ImageDetail(generics.RetrieveDestroyAPIView):
@@ -736,7 +736,9 @@ class GroupUserStateView(generics.GenericAPIView):
 
     def get_object(self):
         group = get_object_or_404(Group, id=self.kwargs.get("pk"))
+        print(group.userstate_set)
         user_state = get_object_or_404(group.userstate_set, user=self.request.user)
+        # print(user_state)
         return user_state
 
     def compute_live_state_values(self):
@@ -1486,7 +1488,7 @@ class UserList(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        Profile.objects.create(user=user)
+        logout(self.request)
         login(self.request, user)
 
 
@@ -1517,7 +1519,7 @@ class UserProfileDetail(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         try :
-            obj = Profile.objects.get(pk=self.kwargs.get('pk'))
+            obj = Profile.objects.get(user__id=self.kwargs.get('pk'))
             return obj
         except Profile.DoesNotExist:
             raise Http404

@@ -60,7 +60,7 @@ function renderChatAction(chat){
     </div>
   `;
 
-  if (chat.message && (chat.creator == LoggedUser || LoggedUser.channelMembership.is_admin)) {
+  if (chat.message && ((chat.creator.id == LoggedUser.id) || (LoggedUser.channelMembership.is_admin))) {
     // add check to make sure that the logged User membership  to the channel is that of an admin
     str = str.replace("{{ actions }}"  ,`
       <span id="reply-action" class="dropdown-item" for="list-image-input">
@@ -109,7 +109,7 @@ function renderMessage(chat){
     str = `
       <div class="flex-fill d-flex flex-column">
         ${Render.renderReply(chat) || ""}
-        ${Render.renderImages(chat.message.images) || Render.renderFile(chat.message) || ""}
+        ${Render.renderImages(chat.message.images) || Render.renderFile(chat.message, chat) || ""}
         ${Render.renderTextContent(chat.message) || ""}
       </div>
     `;
@@ -143,7 +143,7 @@ function chatToHtmlString(chat) {
         `;
       } else {
         str = `
-          <div class="d-flex">
+          <div class="d-flex p-1">
             <img class="mt-auto rounded-circle"  src="${chat.creator.profile_picture}" style="width:2.5rem; height: 2.5rem;"/>
           </div>
           <div class="{{ flex-direction }} mw-100 p-0">
@@ -270,7 +270,7 @@ async function forwardChatWebSocket(container, chat) {
   if  (container.url.includes("channel")) {
     socketUrl += `/ws/groups/${container.group.id}/channels/${container.id}/`;
   } else if (container.url.includes("conversation")) {
-    socketUrl += `ws/conversations/${container.id}/`;
+    socketUrl += `/ws/conversations/${container.id}/`;
   }
 
   let socket =  new WebSocket(socketUrl);
@@ -631,7 +631,14 @@ function appendEventListeners(DOM, chat){
       let chatForm = chat.channel.PageState.chatForm;
 
       // Visual effects of clicking the button
-      let inputContainer = document.querySelector("#detail-input-container");
+      let inputContainer;
+
+      if (GlobalViewMode == "mobile")
+      {
+        inputContainer = document.querySelector("#list-input");
+      } else {
+        inputContainer = document.querySelector("#detail-input-container");
+      }
 
       if (inputContainer) {
 
