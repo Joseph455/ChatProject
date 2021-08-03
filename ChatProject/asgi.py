@@ -17,11 +17,7 @@ import chatApi.routing
 
 django.setup()
 
-if not settings.configured:
-    settings.configure()
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ChatProject.settings')
-
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
