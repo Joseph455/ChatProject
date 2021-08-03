@@ -26,7 +26,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/AppConfig
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY =  os.environ.get("SECRET_KEY") #env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!AppConfig
 DEBUG = True
@@ -100,7 +100,7 @@ CHANNEL_LAYERS = {
 CACHES = {
     "default" : {
         "BACKEND": 'django_redis.caches.RedisCache',
-        "LOCATION": [('127.0.0.1', 6379), env("REDIS_URL")],
+        "LOCATION": [('127.0.0.1', 6379), os.environ.get("REDIS_URL")],
         "OPTIONS":{
             "CLIENT_CLASS": 'django_redis.client.DefaultClient'
         }
