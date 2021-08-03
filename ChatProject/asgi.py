@@ -17,6 +17,8 @@ import chatApi.routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'websocket.settings')
 
+django.setup()
+
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "https": get_asgi_application(),
@@ -26,3 +28,6 @@ application = ProtocolTypeRouter({
         )
     ),
 })
+
+
+# application = get_asgi_application()
