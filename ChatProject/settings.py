@@ -31,7 +31,7 @@ SECRET_KEY =  os.environ.get("SECRET_KEY") #env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!AppConfig
 DEBUG = True
 
-ALLOWED_HOSTS = ["my-chat-project.herokuapp.com", "127.0.0.1"]
+ALLOWED_HOSTS = ["https://my-chat-project.herokuapp.com/", "127.0.0.1"]
 
 
 # Application definition
@@ -108,9 +108,9 @@ CACHES = {
     }
 }
 
-# SECURE_SSL_REDIRECT = True
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", False)
+CSRF_COOKIE_SECURE = os.environ.get("CSRF_COOKIE_SECURE", False)
+SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", False)
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
