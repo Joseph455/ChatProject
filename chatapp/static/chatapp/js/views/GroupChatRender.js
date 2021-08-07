@@ -273,23 +273,21 @@ async function forwardChatWebSocket(container, chat) {
     socketUrl += `/ws/conversations/${container.id}/`;
   }
 
-  let socket =  new WebSocket(socketUrl);
- 
+  // const socket =  new WebSocket(socketUrl);
+  const socket = new ReconnectingWebSocket(socketUrl);
+  socket.debug = true;
+  socket.timeOutInterval = 5400;
+  socket.automaticOpen = false;
+
   socket.onopen = async () => {
     
     let body = {
       "message": chat.message,
       "replying": null
     };
-    
-    // // if message contains media remove them from body and send them over html 
-    // if (chat.message.images.length > 0 || chat.message.file !== null) {
-    //   body.message.images = null;
-    //   body.message.file = null;
-    // }
-    
+
     socket.send(JSON.stringify(body));
-    
+    socket.close(1000, "message has been forwarded");
   };
   
 }

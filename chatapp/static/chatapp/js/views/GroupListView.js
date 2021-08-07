@@ -256,9 +256,14 @@ export async function init() {
   const queryset = new QuerySet(Group);
   const Cusor = {"next": null, "previous": null};
 
-  // const socketProtocol = (window.location.protocol == "http:")? "ws:" : "wss:"; 
-  // const socketUrl = `${socketProtocol}//${window.location.host}/ws/groups/`;    
+  const socketProtocol = (window.location.protocol == "http:")? "ws:" : "wss:"; 
+  const socketUrl = `${socketProtocol}//${window.location.host}/ws/groups/`;    
   // const Socket = new WebSocket(socketUrl);
+  const Socket = new ReconnectingWebSocket(socketUrl);
+  Socket.debug = true;
+  Socket.timeOutInterval = 5400;
+  Socket.automaticOpen = true;
+
 
   try {
     let container = getDOMContainer("list");
@@ -293,15 +298,25 @@ export async function init() {
     console.log(error);
   }
   
-  return {queryset, Cusor};
+  return {queryset, Cusor, Socket};
 }
 
 
-function main (data) {
+function main (viewData) {
+  
   // add event listners to container 
     // scroll search and create 
   // check for new chats using ajax
     // if new add or update the
+
+  // if a new chat is recieved push it upwards
+  let soc = viewData.Socket;
+  
+  soc.addEventListener("message", async (event) => {
+    let msgData = event.data;
+    console.log(msgData);
+  });
+
 
 }
 

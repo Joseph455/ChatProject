@@ -306,10 +306,22 @@ function appendEventListeners(DOM, chat, conversation){
 
           Array.from(container.querySelectorAll(".active")).forEach(async convDOM => {
             let form;
+            
             let headers = {
               "X-CSRFToken": getCookies().csrftoken,
               "Content-Type":"application/json",
             };
+
+            // const socketProtocol = (window.location.protocol == "http:")? "ws:" : "wss:"; 
+            // let socketUrl = `${socketProtocol}//${conversation.url.replace("?format=json", "chats/")}`;    
+            
+            // //  we use html so as to upload media file
+            // // let url = container.url.replace("?format=json", "chats/?format=json");
+
+            // const socket = new ReconnectingWebSocket(socketUrl);
+            // socket.debug = true;
+            // socket.timeOutInterval = 5400;
+            // socket.automaticOpen = false;
 
             
             if (chat.message.file || chat.message.images.length>0){
@@ -327,7 +339,9 @@ function appendEventListeners(DOM, chat, conversation){
                   "file": chat.message.file.file,
                   "chat": forwardedChat.id
                 };
+
                 AjaxPOSTRequest(APIROOT.files, headers, JSON.stringify(form), 'POST');
+              
               } else if (chat.message.images.length>0){
                 chat.message.images.forEach(img => {
                   let form = {
@@ -336,7 +350,9 @@ function appendEventListeners(DOM, chat, conversation){
                   };
                   
                   AjaxPOSTRequest(APIROOT.images, headers, JSON.stringify(form), 'POST');
+                
                 });
+              
               }
               
             } else {
@@ -550,7 +566,7 @@ function prepareContainer(conversation, top, body, form) {
 
         form.querySelector("#input-submit").innerHTML = getSpinner().innerHTML;
 
-        if (conversation.PageState.socket.OPEN === 1){
+        if (conversation.PageState.socket){
           
           // send files
           let sentFile;
@@ -659,7 +675,10 @@ async function init(conversation) {
   
   const socketProtocol = (window.location.protocol == "http:")? "ws:" : "wss:"; 
   const socketUrl = `${socketProtocol}//${window.location.host}/ws/conversations/${conversation.id}/`;    
-  const socket = new WebSocket(socketUrl);
+  const socket = new ReconnectingWebSocket(socketUrl);
+  socket.debug = true;
+  socket.timeOutInterval = 5400;
+  socket.automaticOpen = true;
 
   window.activeConversation = conversation;
 

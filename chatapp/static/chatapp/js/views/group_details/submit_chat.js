@@ -52,7 +52,7 @@ export async function submitChatEvent(container, group) {
     const PageState = group.latestChannel.PageState;
     
     // if the latestChannel socket is open send chat 
-    if (PageState.socket.OPEN === 1) {
+    if (PageState.socket) {
       let sentFile;
       let sentImages  = [];
 

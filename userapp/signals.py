@@ -10,23 +10,23 @@ from userapp.models import Profile
 def CreateUpdateProfileSignal(sender, instance, created, **kwargs):
     uid = kwargs.get("dispatch_uid")
 
-    if uid=="API-CreateUser-View": # else create a profile
-        if created == True:
-            try :
-                Profile.objects.create(user=instance)
-            except:
-                instance.profile.save()
-        else:
-            try :
-                instance.profile.save()
-            except (AttributeError, Profile.DoesNotExist):
-                Profile.objects.create(user=instance)
+    # if uid=="API-CreateUser-View": # else create a profile
+    if created == True:
         try :
-            if instance.profile:
-                instance.profile.save()
+            Profile.objects.create(user=instance)
         except:
-            try:
-                Profile.objects.create(user=instance)
-            except:
-                pass
+            instance.profile.save()
+    else:
+        try :
+            instance.profile.save()
+        except (AttributeError, Profile.DoesNotExist):
+            Profile.objects.create(user=instance)
+    try :
+        if instance.profile:
+            instance.profile.save()
+    except:
+        try:
+            Profile.objects.create(user=instance)
+        except:
+            pass
 

@@ -237,7 +237,12 @@ export async function init(group){
 
   // This socket get chat data for the active channel
   socketUrl = `${socketProtocol}//${window.location.host}/ws/groups/${group.id}/channels/${group.latestChannel.id}/`;    
-  const ChannelSocket = new WebSocket(socketUrl);
+  // const ChannelSocket = new WebSocket(socketUrl);
+  const ChannelSocket = new ReconnectingWebSocket(socketUrl);
+  ChannelSocket.debug = true;
+  ChannelSocket.timeOutInterval = 5400;
+  ChannelSocket.automaticOpen = true;
+
 
   group.latestChannel.PageState = {};
   group.latestChannel.PageState.queryset = queryset;

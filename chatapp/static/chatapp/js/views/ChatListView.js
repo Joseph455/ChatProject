@@ -273,7 +273,10 @@ async function init () {
 
   const socketProtocol = (window.location.protocol == "http:")? "ws:" : "wss:"; 
   const socketUrl = `${socketProtocol}//${window.location.host}/ws/conversations/`;    
-  const Socket = new WebSocket(socketUrl);
+  const Socket = new ReconnectingWebSocket(socketUrl);
+  Socket.debug = true;
+  Socket.timeOutInterval = 5400;
+  Socket.automaticOpen = true;
 
 
   try {
