@@ -440,7 +440,7 @@ class ChannelMembershipSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = validated_data.get('user')
         channel = validated_data.pop('channel')
-        
+        validated_data.pop('user')
         if user in channel.group.members.all():
             if user in channel.members.all():
                 return channel.membership_set.get(user=user)

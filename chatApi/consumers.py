@@ -74,7 +74,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     file_obj, _ = File.objects.get_or_create(file=location)
                 except File.MultipleObjectsReturned:
                     file_obj = File.objects.get_queryset(file=location)[0]
-                
+
                 file_obj.chat = chat
                 file_obj.save()
 
@@ -164,7 +164,8 @@ class ConversationChatConsumer(ChatConsumer):
         user = self.scope["user"]
         conversation = kwargs.get("conversation", None)
         channel = kwargs.get("channel", None)
-        chat = serializer.save(creator=user, conversation=conversation, channel=channel)
+        chat = serializer.save(
+            creator=user, conversation=conversation, channel=channel)
         chat.save(scope=self.scope)
         return chat
 
@@ -180,8 +181,8 @@ class ConversationChatConsumer(ChatConsumer):
         self.conversation = await self.get_model(id, Conversation)
 
         if await self.permit():
-            if f"conversation_{id}" not in self.groups:
-                self.groups.append(f"conversation_{id}")
+            if self.group_name not in self.groups:
+                self.groups.append(self.group_name)
 
                 for group in self.groups:
 
@@ -195,7 +196,7 @@ class ConversationChatConsumer(ChatConsumer):
             await self.close(code=1002)
 
     async def disconnect(self, close_code):
-        for group in self.groups:        
+        for group in self.groups:
             await self.channel_layer.group_discard(
                 group,
                 self.channel_name
@@ -210,16 +211,16 @@ class ConversationChatConsumer(ChatConsumer):
         if await sync_to_async(serializer.is_valid)():
 
             chat = await self.create_chat(
-                    raw_data=data,
-                    serializer=serializer,
-                    conversation=self.conversation
-                )
+                raw_data=data,
+                serializer=serializer,
+                conversation=self.conversation
+            )
 
             if chat:
                 await self.link_chat_media(chat, json.loads(text_data))
-                
+
                 message = await self.get_serializer_data(serializer)
-                
+
                 for group in self.groups:
                     await self.channel_layer.group_send(
                         group,
@@ -284,13 +285,12 @@ class UserConversationsConsumer(AsyncWebsocketConsumer):
     @sync_to_async
     def add_consumer_to_all_conversation_groups(self):
         user = self.scope["user"]
-        conversations =  user.conversation_set.all()
+        conversations = user.conversation_set.all()
 
         for conv in conversations:
             group_name = self.get_group_name(conv)
-            
-            if group_name not in self.groups:
 
+            if group_name not in self.groups:
                 self.channel_layer.group_add(
                     group_name,
                     self.channel_name,
@@ -309,14 +309,12 @@ class UserConversationsConsumer(AsyncWebsocketConsumer):
 
             self.groups.remove(group)
 
-
     async def connect(self):
         user = self.scope["user"]
         self.channel_name = f"user_{user.id}_conversations"
-  
+
         if await self.permit():
             await self.add_consumer_to_all_conversation_groups()
-            print(self.groups, "Once")
             await self.accept()
         else:
             await self.close(code=1002)
@@ -326,7 +324,6 @@ class UserConversationsConsumer(AsyncWebsocketConsumer):
         await self.close(close_code)
 
     async def send_chat_event(self, event):
-        print("WAS CALLED")
         chat = await database_sync_to_async(Chat.objects.get)(id=event.get("chat_id"))
 
         # if await self.has_chat_permission(chat):
@@ -339,73 +336,48 @@ class UserConversationsConsumer(AsyncWebsocketConsumer):
         await self.receive_chat(event)
 
 
+# NOTE THAT THE CHANNEL MUST CONNECT BEFORE THE GROUP CONNECT
+
 class ChannelChatConsumer(ChatConsumer):
     permission_classes = [IsAutheticated]
+    groups = []
 
     @sync_to_async
     def get_channel_members(self):
         return list(self.channelModel.members.all())
 
-    @sync_to_async
-    def get_group_name(self):
-        valid_characters = "" + ascii_letters + "_-."
-        name = f"{self.channelModel.group.title}_{self.channelModel.group.id}_channels"
-        valid_name = ""
-
-        for i in name:
-            if i in valid_characters:
-                valid_name += i
-        return valid_name
-
     async def connect(self):
         id = int(self.scope["url_route"]["kwargs"]["channel_id"])
-        self.channelModel = await self.get_model(id=id, klass=ChannelModel)
-        self.consumer_name = f"channel_consumer_{id}"
+        self.channel = await self.get_model(id=id, klass=ChannelModel)
         self.group_name = f"channel_{id}"
 
-        # contains all ChannelChatConsumers in all ChannelModel in self.channel.group
-        self.channels_group_name = await self.get_group_name()
-        
-        # print(self.channels_group_name)
-
         if await self.permit():
-            # print(self.channels_group_name)
+            if not self.group_name in self.groups:
+                await self.channel_layer.group_add(
+                    self.group_name,
+                    self.channel_name
+                )
 
-            await self.channel_layer.group_add(
-                self.group_name,
-                self.channel_name
-            )
-
-            await self.channel_layer.group_add(
-                self.channels_group_name,
-                self.channel_name
-            )
-
+                self.groups.append(self.group_name)
             await self.accept()
-
-            await self.send(json.dumps(
-                {"chat": "This is a send test"}
-            ))
-
-            print("It has been sent")
 
         else:
             error_msg = "Permission Denied"
+
             await self.send(
                 text_data=error_msg,
                 close=True
             )
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
-            self.group_name,
-            self.channel_name
-        )
 
-        await self.channel_layer.group_discard(
-            self.channels_group_name,
-            self.channel_name
-        )
+        for group in self.groups:
+
+            await self.channel_layer.group_discard(
+                group,
+                self.channel_name
+            )
+            self.groups.remove(group)
 
         self.close(close_code)
 
@@ -416,48 +388,80 @@ class ChannelChatConsumer(ChatConsumer):
         if await sync_to_async(serializer.is_valid)():
 
             chat = await self.create_chat(
-               raw_data=data,
-               serializer=serializer,
-               channel=self.channelModel
+                raw_data=data,
+                serializer=serializer,
+                channel=self.channel
             )
 
             if chat:
                 await self.link_chat_media(chat, json.loads(text_data))
                 message = await self.get_serializer_data(serializer)
 
-                # relay message to the group consumer
-                await self.channel_layer.group_send(
-                    self.channels_group_name,
-                    {
-                        "type": "send_chat_event",
-                        "message": message,
-                        "creator_id": self.scope["user"].id,
-                        "chat_id": chat.id,
-                    }
-                )
+                # #relay message to self
+                await self.send_chat_event({
+                    "message": message,
+                    "creator_id": self.scope["user"].id,
+                    "chat_id": chat.id,
+                    "broadcast_level": 0,
+                })
 
-                # relays message to channel consumer
-                await self.channel_layer.group_send(
-                    self.group_name,
-                    {
-                        "type": "send_chat_event",
-                        "message": message,
-                        "creator_id": self.scope["user"].id,
-                        "chat_id": chat.id,
-                    }
-                )
+                # relay message to the group consumer
+
+                # for group in self.groups:
+                #     await self.channel_layer.group_send(
+                #         group,
+                #         {
+                #             "type": "send_chat_event",
+                #             "message": message,
+                #             "creator_id": self.scope["user"].id,
+                #             "chat_id": chat.id,
+                #             "broadcast_level": 0,                        }
+                #     )
 
         else:
             await self.send(text_data=json.dumps({
                 "errors": serializer.errors,
             }))
 
+    async def send_chat_event(self, event):
+        lvl = event.get("broadcast_level", 0)
+        
+        if lvl == 0:
+            await super().send_chat_event(event)
+
+            event["broadcast_level"] = 1
+            event["type"] = "send_chat_event"
+            print("ATTEMPTING TO RELAY TO LVL1")
+            print(event)
+            for group in self.groups:
+                await self.channel_layer.group_send(
+                    group,
+                    event
+                )
+
 
 class GroupChatConsumer(AsyncWebsocketConsumer):
-    
+
     # this consumer connects all the channels in a group
-    
+
     permission_classes = [IsAutheticated, IsGroupMember]
+    groups = []
+
+    @sync_to_async
+    def permit(self):
+        for kls in self.permission_classes:
+            p_cls = kls(self)
+            if not p_cls.has_permission():
+                return False
+        return True
+
+    @sync_to_async
+    def get_model(self, id, klass):
+        try:
+            obj = klass.objects.get(id=id)
+            return obj
+        except klass.DoesNotExist:
+            return None
 
     @sync_to_async
     def receive_chat(self, event):
@@ -486,75 +490,98 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
     def has_chat_permission(self, chat):
         return bool(chat.channel.members.filter(id=self.scope["user"].id))
 
+    def get_group_name(self, channel):
+        return f"channel_{channel.id}"
+
+    @sync_to_async
+    def add_consumer_to_all_mchannel_groups(self):
+        user = self.scope["user"]
+        channels = self.group.channels.filter(members__id=user.id)
+
+        for char in channels:
+            group_name = self.get_group_name(char)
+
+            if group_name not in self.groups:
+
+                self.channel_layer.group_add(
+                    group_name,
+                    self.channel_name,
+                )
+
+                self.groups.append(group_name)
+
+    @sync_to_async
+    def remove_consumer_from_all_mchannel_groups(self):
+
+        for group in self.groups:
+            self.channel_layer.group_discard(
+                group,
+                self.channel_name,
+            )
+
+            self.groups.remove(group)
+
     async def connect(self):
         id = int(self.scope["url_route"]["kwargs"]["group_id"])
-        user = self.scope["user"]
-
-        self.group_model = self.get_model(id=id, klass=GroupModel)
-
-        self.group_name = f"{self.group_model.title}_{self.group_model.id}_channels"
-
-        self.user_group_list_name = f"{user.username}_{user.id}_groups"
+        user = self.scope['user']
+        self.group = await self.get_model(id=id, klass=GroupModel)
+        # self.channel_name = f"consumer_{user.id}_group_{id}"
+        self.group_name = f"group_{id}"
 
         if await self.permit():
 
-            await self.channel_layer.group_add(
-                self.group_name,
-                self.channel_name,
-            )
+            if not self.group_name in self.groups:
+                await self.channel_layer.group_add(
+                    self.group_name,
+                    self.channel_name
+                )
 
-            await self.channel_layer.group_add(
-                self.user_group_list_name,
-                self.channel_name,
-            )
+                self.groups.append(self.group_name)
 
+            await self.add_consumer_to_all_mchannel_groups()
             await self.accept()
         else:
             await self.close(code=1002)
 
     async def disconnect(self, close_code):
-
-        await self.channel_layer.group_discard(
-            self.group_name,
-            self.channel_name,
-        )
-
-        await self.channel_layer.group_discard(
-            self.user_group_list_name,
-            self.channel_name,
-        )
-
+        await self.remove_consumer_from_all_mchannel_groups()
         await self.close(close_code)
 
     async def send_chat_event(self, event):
         chat = await database_sync_to_async(Chat.objects.get)(id=event.get("chat_id"))
+        lvl = event.get("broadcast_level", 0)
 
-        if await self.has_chat_permission(chat):
-            serialized_data = await self.serialize_chat(chat)
+        print("RELAYED TO LVL 1")
+        if lvl == 1 :
+            if await self.has_chat_permission(chat):
+                serialized_data = await self.serialize_chat(chat)
 
-            await self.send(json.dumps(
-                {"chat": serialized_data}
-            ))
+                await self.send(json.dumps(
+                    {"chat": serialized_data}
+                ))
 
-            # relay message to UserGroupsConsumer
-            await self.channel_layer.group_send(
-                self.user_group_list_name,
-                {
-                    "type": "send_chat_event",
-                    "message": message,
-                    "creator_id": self.scope["user"].id,
-                    "chat_id": chat.id,
-                }
-            )
+                await self.receive_chat(event)
 
-            await self.receive_chat(event)
+                print("ATTEMPTING TO RELAY TO LVL 2")
+                for group in filter(lambda name: 'group' in name, self.groups):
+                    await self.channel_layer.group_send(
+                        group,
+                        {
+                            "type": "send_chat_event",
+                            "message": serialized_data,
+                            "creator_id": self.scope["user"].id,
+                            "chat_id": chat.id,
+                            "broadcast_level": 2
+                        }
+                    )
 
 
 class UserGroupsConsumer(AsyncWebsocketConsumer):
-    
-    # this consumer connects all the groups a specific user uses 
-    
+
+    # this consumer connects all the groups a specific user uses
+
     permission_classes = [IsAutheticated]
+    groups = []
 
     @sync_to_async
     def permit(self):
@@ -566,7 +593,8 @@ class UserGroupsConsumer(AsyncWebsocketConsumer):
 
     @sync_to_async
     def has_chat_permission(self, chat):
-        return bool(self.scope["user"] in chat.channel.members.all())
+        user = self.scope["user"]
+        return bool(chat.channel.members.filter(id=user.id))
 
     @sync_to_async
     def receive_chat(self, event):
@@ -591,40 +619,81 @@ class UserGroupsConsumer(AsyncWebsocketConsumer):
         serializer = SocketChatSerializer(instance=chat, allow_null=True)
         return serializer.data
 
-    async def connect(self):
-        user = self.scope["user"]
-        # contains all group consumers
-        self.group_name = f"{user.username}_{user.id}_groups"
+    def get_group_name(self, group):
+        return f"group_{group.id}"
 
-        if await self.permit():
-            await self.channel_layer.group_add(
-                self.group_name,
+    @sync_to_async
+    def add_consumer_to_all_mgroup_groups(self):
+        user = self.scope["user"]
+        groups = GroupModel.objects.filter(members__id=user.id)
+
+        for group in groups:
+            group_name = self.get_group_name(group)
+
+            if group_name not in self.groups:
+                
+                self.channel_layer.group_add(
+                    group_name,
+                    self.channel_name,
+                )
+
+                self.groups.append(group_name)
+
+            channels = group.channels.filter(members__id=user.id)
+            for char in channels:
+                char_name = f"channel_{char.id}"
+
+                if char_name not in self.groups:
+                    self.channel_layer.group_add(
+                        char_name,
+                        self.channel_name
+                    )
+                    self.groups.append(char_name)
+
+    @sync_to_async
+    def remove_consumer_from_all_mgroup_groups(self):
+
+        for group in self.groups:
+            self.channel_layer.group_discard(
+                group,
                 self.channel_name,
             )
 
+            self.groups.remove(group)
+
+    async def connect(self):
+        # connects to group containing all Mgroup consumers
+        user = self.scope["user"]
+        # self.channel_name = f"consumer_{user.id}_groups"
+
+        if await self.permit():
+            await self.add_consumer_to_all_mgroup_groups()
             await self.accept()
         else:
             await self.close(code=1002)
 
     async def disconnect(self, close_code):
-
-        await self.channel_layer.group_add(
-            self.group_name,
-            self.channel_name,
-        )
-
+        await self.remove_consumer_from_all_mgroup_groups()
         await self.close(close_code)
 
     async def send_chat_event(self, event):
         chat = await database_sync_to_async(Chat.objects.get)(id=event.get("chat_id"))
-
+        lvl = event.get("broadcast_level", 0)
+        
         if await self.has_chat_permission(chat):
-            serialized_data = await self.serialize_chat(chat)
+            if lvl == 2:
+                serialized_data = await self.serialize_chat(chat)
 
-            await self.send(json.dumps(
-                {"chat": serialized_data}
-            ))
+                await self.send(json.dumps(
+                    {"chat": serialized_data}
+                ))
+                await self.receive_chat(event)
+            elif lvl == 1:
+                serialized_data = await self.serialize_chat(chat)
 
-            await self.receive_chat(event)
+                await self.send(json.dumps(
+                    {"chat": serialized_data}
+                ))
+                await self.receive_chat(event)
 
 

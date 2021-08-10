@@ -256,7 +256,7 @@ class Membership(models.Model):
                     "pk": self.group.id,
                     "member_id": self.id,
                 }) 
-        return url.replace('/', '', 1)
+            return url.replace('/', '', 1)
     
 
 class ConBase(models.Model):
@@ -298,8 +298,6 @@ class Channel(ConBase):
 
     def get_absolute_url(self):
         initial_url =  reverse("channel-detail", kwargs={"pk": self.group.id, 'channel_id': self.id})
-        print(initial_url)
-        print(initial_url.replace('/', '', 1))
         return initial_url.replace('/', '', 1)
 
     def save(self, *args, **kwargs):

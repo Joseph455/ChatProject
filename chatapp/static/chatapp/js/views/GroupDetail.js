@@ -231,8 +231,14 @@ export async function init(group){
   
   // This socket get chat data for all channels in the group
   if (!group.socket) {
-    const GroupSocket = new WebSocket(socketUrl);
+    // const GroupSocket = new WebSocket(socketUrl);
+    const GroupSocket = new ReconnectingWebSocket(socketUrl);
+    GroupSocket.debug = true;
+    GroupSocket.timeOutInterval = 5400;
+    GroupSocket.automaticOpen = true;
+    
     group.socket = GroupSocket;
+    
   }
 
   // This socket get chat data for the active channel
@@ -242,6 +248,8 @@ export async function init(group){
   ChannelSocket.debug = true;
   ChannelSocket.timeOutInterval = 5400;
   ChannelSocket.automaticOpen = true;
+
+  // group.socket.refresh();
 
 
   group.latestChannel.PageState = {};
