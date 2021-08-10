@@ -429,8 +429,8 @@ class ChannelChatConsumer(ChatConsumer):
         if lvl == 0:
             await super().send_chat_event(event)
 
-            event["broadcast_level"] = 1
             event["type"] = "send_chat_event"
+            event["broadcast_level"] = 1
             print("ATTEMPTING TO RELAY TO LVL1")
             print(event)
             for group in self.groups:
