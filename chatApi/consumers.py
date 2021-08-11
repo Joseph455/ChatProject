@@ -398,25 +398,25 @@ class ChannelChatConsumer(ChatConsumer):
                 message = await self.get_serializer_data(serializer)
 
                 # #relay message to self
-                await self.send_chat_event({
-                    "message": message,
-                    "creator_id": self.scope["user"].id,
-                    "chat_id": chat.id,
-                    "broadcast_level": 0,
-                })
+                # await self.send_chat_event({
+                #     "message": message,
+                #     "creator_id": self.scope["user"].id,
+                #     "chat_id": chat.id,
+                #     "broadcast_level": 0,
+                # })
 
                 # relay message to the group consumer
 
-                # for group in self.groups:
-                #     await self.channel_layer.group_send(
-                #         group,
-                #         {
-                #             "type": "send_chat_event",
-                #             "message": message,
-                #             "creator_id": self.scope["user"].id,
-                #             "chat_id": chat.id,
-                #             "broadcast_level": 0,                        }
-                #     )
+                for group in self.groups:
+                    await self.channel_layer.group_send(
+                        group,
+                        {
+                            "type": "send_chat_event",
+                            "message": message,
+                            "creator_id": self.scope["user"].id,
+                            "chat_id": chat.id,
+                            "broadcast_level": 0,                        }
+                    )
 
         else:
             await self.send(text_data=json.dumps({
@@ -429,16 +429,16 @@ class ChannelChatConsumer(ChatConsumer):
         if lvl == 0:
             await super().send_chat_event(event)
 
-            event["type"] = "send_chat_event"
-            event["broadcast_level"] = 1
-            print("ATTEMPTING TO RELAY TO LVL1")
-            print(event)
-            for group in self.groups:
-                await self.channel_layer.group_send(
-                    group,
-                    event
-                )
+            # event["type"] = "send_chat_event"
+            # event["broadcast_level"] = 1
+            # print("ATTEMPTING TO RELAY TO LVL1")
 
+            # for group in self.groups:
+            #     await self.channel_layer.group_send(
+            #         group,
+            #         event
+            #     )
+            
 
 class GroupChatConsumer(AsyncWebsocketConsumer):
 
@@ -552,7 +552,7 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
         lvl = event.get("broadcast_level", 0)
 
         print("RELAYED TO LVL 1")
-        if lvl == 1 :
+        if lvl == 0 :
             if await self.has_chat_permission(chat):
                 serialized_data = await self.serialize_chat(chat)
 
@@ -571,7 +571,7 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
                             "message": serialized_data,
                             "creator_id": self.scope["user"].id,
                             "chat_id": chat.id,
-                            "broadcast_level": 2
+                            "broadcast_level": 1
                         }
                     )
 
@@ -681,19 +681,11 @@ class UserGroupsConsumer(AsyncWebsocketConsumer):
         lvl = event.get("broadcast_level", 0)
         
         if await self.has_chat_permission(chat):
-            if lvl == 2:
+            if lvl == 0:
                 serialized_data = await self.serialize_chat(chat)
 
                 await self.send(json.dumps(
                     {"chat": serialized_data}
                 ))
                 await self.receive_chat(event)
-            elif lvl == 1:
-                serialized_data = await self.serialize_chat(chat)
-
-                await self.send(json.dumps(
-                    {"chat": serialized_data}
-                ))
-                await self.receive_chat(event)
-
 
